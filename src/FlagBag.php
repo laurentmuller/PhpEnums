@@ -76,9 +76,11 @@ class FlagBag
     }
 
     /**
-     * @param class-string<T> $enumType
+     * @template E of \BackedEnum
      *
-     * @return FlagBag<T>
+     * @param class-string<E> $enumType
+     *
+     * @return FlagBag<E>
      */
     public static function fromAll(string $enumType): FlagBag
     {
@@ -86,7 +88,15 @@ class FlagBag
     }
 
     /**
+     * @psalm-template E of \BackedEnum
+     *
      * @param class-string<T>|T $enumOrType
+     *
+     * @psalm-param E ...$flags
+     *
+     * @phpstan-return FlagBag<T>
+     *
+     * @psalm-return FlagBag<E>
      */
     public static function from(string|\BackedEnum $enumOrType, \BackedEnum ...$flags): static
     {
