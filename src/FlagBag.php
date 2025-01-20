@@ -54,18 +54,24 @@ class FlagBag
     }
 
     /**
-     * @param class-string $enumType
+     * @param class-string|object $enumOrType
      *
-     * @throws InvalidArgumentException If $enumType is not an int backed enum
+     * @throws InvalidArgumentException If $enumOrType is not an int backed enum
      */
-    private static function checkIntBackedEnumType(string $enumType): void
+    private static function checkIntBackedEnumType(string|object $enumOrType): void
     {
-        if (!is_a($enumType, \BackedEnum::class, true)) {
-            throw new InvalidArgumentException(sprintf('"%s" is not a backed enum', $enumType));
+        if (!is_a($enumOrType, \BackedEnum::class, true)) {
+            throw new InvalidArgumentException(sprintf(
+                '"%s" is not a backed enum',
+                \is_object($enumOrType) ? $enumOrType::class : $enumOrType,
+            ));
         }
 
-        if ('int' !== (string) (new \ReflectionEnum($enumType))->getBackingType()) {
-            throw new InvalidArgumentException(sprintf('"%s" is not an int backed enum', $enumType));
+        if ('int' !== (string) (new \ReflectionEnum($enumOrType))->getBackingType()) {
+            throw new InvalidArgumentException(sprintf(
+                '"%s" is not an int backed enum',
+                \is_object($enumOrType) ? $enumOrType::class : $enumOrType,
+            ));
         }
     }
 
@@ -84,18 +90,12 @@ class FlagBag
      */
     public static function from(string|\BackedEnum $enumOrType, \BackedEnum ...$flags): static
     {
-        if ($enumOrType instanceof \BackedEnum) {
-            if ('int' !== (string) (new \ReflectionEnum($enumOrType))->getBackingType()) {
-                throw new InvalidArgumentException(sprintf('"%s" is not an int backed enum', $enumOrType::class));
-            }
+        self::checkIntBackedEnumType($enumOrType);
 
+        if ($enumOrType instanceof \BackedEnum) {
             $type = $enumOrType::class;
             $flags[] = $enumOrType;
         } else {
-            if (!is_a($enumOrType, \BackedEnum::class, true)) {
-                throw new InvalidArgumentException(sprintf('"%s" is not a backed enum', $enumOrType));
-            }
-
             $type = $enumOrType;
         }
 
