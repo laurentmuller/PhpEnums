@@ -233,11 +233,7 @@ class FlagBag
     {
         $bits = static::encodeBits(array_map(static fn (\BackedEnum $flag) => $flag->value, $flags));
 
-        if ($bits >= 1) {
-            return $bits === ($bits & self::encodeBits($this->bits));
-        }
-
-        return false;
+        return $this->hasBits($bits);
     }
 
     /**
